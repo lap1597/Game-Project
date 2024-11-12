@@ -10,35 +10,41 @@ import com.badlogic.gdx.utils.ScreenUtils;
 /** {@link com.badlogic.gdx.ApplicationListener} implementation shared by all platforms. */
 public class Main extends ApplicationAdapter {
     private SpriteBatch batch;
-    float frameDuration = 0.1f;
+    private Player player;
+    private GameControl gc;
+    float delta = 0f;
     float elapsedTime = 0f;
-    Movement test;
-    TextureRegion[] walk;
+
     Animation<TextureRegion> action1Animation;
     @Override
     public void create() {
 
         batch = new SpriteBatch();
-        test = new Movement();
-        walk = test.getAction1();
-        action1Animation = new Animation<>(frameDuration, walk);
+        player = new Player(1);
+        gc = new GameControl(player);
+
+
+
 
     }
+
 
     @Override
     public void render() {
         ScreenUtils.clear(0.15f, 0.15f, 0.2f, 1f);
-        elapsedTime += Gdx.graphics.getDeltaTime();
-        TextureRegion currentFrame = action1Animation.getKeyFrame(elapsedTime, true);
+        delta = Gdx.graphics.getDeltaTime();
+        gc.controlInput(delta);
+        player.update(delta);
+
 
         batch.begin();
-        batch.draw(currentFrame, 0, 0);
+        player.render(batch);
         batch.end();
     }
 
     @Override
     public void dispose() {
         batch.dispose();
-        test.dispose();
+
     }
 }
