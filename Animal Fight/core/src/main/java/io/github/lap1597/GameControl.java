@@ -12,25 +12,25 @@ public class GameControl extends ApplicationAdapter {
 
     }
     public void controlInput(float delta) {
-        boolean isMoving = false;
+
         if (Gdx.input.isKeyPressed(Input.Keys.W)) {
             p.moveUp(delta);
-            isMoving = true;
+
         }
 
         if (Gdx.input.isKeyPressed(Input.Keys.S)) {
             p.moveDown(delta);
-            isMoving = true;
+
         }
 
         if (Gdx.input.isKeyPressed(Input.Keys.A)) {
             p.moveLeft(delta);
-            isMoving = true;
+
         }
 
         if (Gdx.input.isKeyPressed(Input.Keys.D)) {
             p.moveRight(delta);
-            isMoving = true;
+
         }
 
         if (Gdx.input.isKeyPressed(Input.Keys.SPACE)) {
@@ -39,12 +39,12 @@ public class GameControl extends ApplicationAdapter {
         // Hit
         if (Gdx.input.isKeyPressed(Input.Keys.R)) {
             p.hit(delta);
-            isMoving = true;
+
         }
         //kick
         if (Gdx.input.isKeyPressed(Input.Keys.T)) {
             p.kick(delta);
-            isMoving = true;
+
         }
 
 //
