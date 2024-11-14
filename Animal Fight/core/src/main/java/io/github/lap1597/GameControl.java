@@ -11,13 +11,14 @@ public class GameControl extends ApplicationAdapter {
         this.p = p;
 
     }
-    public void controlInput(float delta, int Up,
+    public void controlInput(float delta,
+                             int Up,
                              int Down,
                              int Left,
                              int Right,
-                             int Gun,
-                             int Kick,
-                             int Punch) {
+                             int Skill1,
+                             int Skill2,
+                             int Skill3) {
 
         if (Gdx.input.isKeyPressed(Up)) {
             p.moveUp(delta);
@@ -38,21 +39,30 @@ public class GameControl extends ApplicationAdapter {
             p.moveRight(delta);
 
         }
-        //Load gun
-        if (Gdx.input.isKeyPressed(Gun)) {
-            p.attack(delta);
-        }
-        // Hit
-        if (Gdx.input.isKeyPressed(Punch)) {
-            p.hit(delta);
 
-        }
-        //kick
-        if (Gdx.input.isKeyPressed(Kick)) {
-            p.kick(delta);
-
+        //SKILL
+        if (Gdx.input.isKeyPressed(Skill1)) {
+            p.activateSkill1();
+        } else {
+            p.deactivateSkill1();
         }
 
+        // Activate skill 2
+        if (Gdx.input.isKeyPressed(Skill2)) {
+            p.activateSkill2();
+        } else {
+            p.deactivateSkill2();
+        }
+
+        // Activate skill 3
+        if (Gdx.input.isKeyPressed(Skill3)) {
+            p.activateSkill3();
+        } else {
+            p.deactivateSkill3();
+        }
+        p.attack();
     }
 
 }
+
+

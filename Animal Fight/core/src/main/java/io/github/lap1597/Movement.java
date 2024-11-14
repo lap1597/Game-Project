@@ -54,6 +54,13 @@ public class Movement {
 
         }
         allActivities.put("combo", combo);
+        //Spin
+        TextureRegion[] spin = new TextureRegion[10];
+        for (int i = 0; i < 10; i++) {
+            spin[i] = tmpFrames1[3][i];
+
+        }
+        allActivities.put("spin", spin);
         // KICK
         TextureRegion[] kick = new TextureRegion[12];
         for (int i = 0; i < 12; i++) {
@@ -67,6 +74,7 @@ public class Movement {
             shotEnergyLong[i] = tmpFrames1[5][i];
 
         }
+
         allActivities.put("shotEnergyLong", shotEnergyLong);
         //SHOT ENERGY Fast
         TextureRegion[] shotEnergyFast = new TextureRegion[6];
@@ -103,13 +111,13 @@ public class Movement {
         }
 
         allActivities.put("standGun", standGun);
+
         //Stand shot
         TextureRegion[] standShot = new TextureRegion[8];
         for (int i = 0; i < 8; i++) {
-            standShot[i] = tmpFrames2[1][i];
+            standShot[i] = tmpFrames2[2][i];
         }
-
-        allActivities.put("standShot", standShot);
+        allActivities.put("shoot", standShot);
         // Walk gun
         TextureRegion[] walkGun = new TextureRegion[8];
         for (int i = 0; i < 8; i++) {

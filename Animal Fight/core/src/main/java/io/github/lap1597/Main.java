@@ -27,23 +27,20 @@ public class Main extends ApplicationAdapter {
 
         batch1 = new SpriteBatch();
         batch2 = new SpriteBatch();
-        player1 = new Player(1);
-        player2 = new Player(2);
+        player1 = new Player(1,100,100);
+        player2 = new Player(2,400,400);
         gc1 = new GameControl(player1);
         gc2 = new GameControl(player2);
 
 
-
-
     }
-
 
     @Override
     public void render() {
         ScreenUtils.clear(0.15f, 0.15f, 0.2f, 1f);
         delta = Gdx.graphics.getDeltaTime();
-        gc1.controlInput(delta, W,S,A,D,E,R,T);
-        gc2.controlInput(delta, UP, DOWN, LEFT, RIGHT, J, K,L);
+        gc1.controlInput(delta, W,S,A,D,R,T,Y);
+        gc2.controlInput(delta, UP, DOWN, LEFT, RIGHT,J,K,L);
 
 
         player1.update(delta);
