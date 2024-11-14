@@ -11,46 +11,48 @@ public class GameControl extends ApplicationAdapter {
         this.p = p;
 
     }
-    public void controlInput(float delta) {
+    public void controlInput(float delta, int Up,
+                             int Down,
+                             int Left,
+                             int Right,
+                             int Gun,
+                             int Kick,
+                             int Punch) {
 
-        if (Gdx.input.isKeyPressed(Input.Keys.W)) {
+        if (Gdx.input.isKeyPressed(Up)) {
             p.moveUp(delta);
 
         }
 
-        if (Gdx.input.isKeyPressed(Input.Keys.S)) {
+        if (Gdx.input.isKeyPressed(Down)) {
             p.moveDown(delta);
 
         }
 
-        if (Gdx.input.isKeyPressed(Input.Keys.A)) {
+        if (Gdx.input.isKeyPressed(Left)) {
             p.moveLeft(delta);
 
         }
 
-        if (Gdx.input.isKeyPressed(Input.Keys.D)) {
+        if (Gdx.input.isKeyPressed(Right)) {
             p.moveRight(delta);
 
         }
-
-        if (Gdx.input.isKeyPressed(Input.Keys.SPACE)) {
+        //Load gun
+        if (Gdx.input.isKeyPressed(Gun)) {
             p.attack(delta);
         }
         // Hit
-        if (Gdx.input.isKeyPressed(Input.Keys.R)) {
+        if (Gdx.input.isKeyPressed(Punch)) {
             p.hit(delta);
 
         }
         //kick
-        if (Gdx.input.isKeyPressed(Input.Keys.T)) {
+        if (Gdx.input.isKeyPressed(Kick)) {
             p.kick(delta);
 
         }
 
-//
-//        if (Gdx.input.isKeyPressed(Input.Keys.R)) {
-//            p.kick(attack);
-//        }
     }
 
 }

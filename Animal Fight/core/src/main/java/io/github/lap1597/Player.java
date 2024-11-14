@@ -10,7 +10,7 @@ import java.util.HashMap;
 public class Player {
     private Movement movement;
     private int health;
-    private int typePlayer;
+    private static int typePlayer;
     private float elapsedTime = 0f;
     private float x, y;
     private HashMap<String, TextureRegion[]> regions;
@@ -24,7 +24,6 @@ public class Player {
             movement = new Movement(Constant.DOGSHEET1, Constant.DOGSHEET2, Constant.DOGSHEET3);
 
         }else{
-
             //get Cat
             movement = new Movement(Constant.CATSHEET1, Constant.CATSHEET2, Constant.CATSHEET3);
 
@@ -49,33 +48,31 @@ public class Player {
     public void update(float delta) {
         elapsedTime += delta;
 
-//        if (currentAnimation != null && currentAnimation.isAnimationFinished(elapsedTime)&& !isLoadingGun) {
-//             setAnimation("stand");
-//        }else if(isLoadingGun){
-//            setAnimation("standGun");
-//        }
         if (isLoadingGun) {
             if (currentAnimation.isAnimationFinished(elapsedTime)) {
-                // Transition to standGun after loadGun finishes
+
                 setAnimation("standGun");
-            //    isLoadingGun = false;  // Reset the loading gun flag
+
             }
         } else if (currentAnimation != null && currentAnimation.isAnimationFinished(elapsedTime)) {
-            // After standGun finishes, transition back to stand animation
             setAnimation("stand");
         }
     }
 
-    public void render(SpriteBatch batch) {
+    public void render(SpriteBatch batch, int n) {
         TextureRegion frame = currentAnimation.getKeyFrame(elapsedTime, true);  // Looping animation
-        batch.draw(frame,x,y);
+        if(n ==1){
+            batch.draw(frame, x, y);
+        }
+        else {
+
+            batch.draw(frame, x+20, y+20);
+        }
     }
 
     public void moveUp(float delta) {
         y += 100*delta;
-
         setAnimation("walk");
-
     }
 
     public void moveDown(float delta) {

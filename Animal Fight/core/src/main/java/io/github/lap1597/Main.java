@@ -2,16 +2,22 @@ package io.github.lap1597;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.utils.ScreenUtils;
 
+import static com.badlogic.gdx.Input.Keys.*;
+
 /** {@link com.badlogic.gdx.ApplicationListener} implementation shared by all platforms. */
 public class Main extends ApplicationAdapter {
-    private SpriteBatch batch;
-    private Player player;
-    private GameControl gc;
+    private SpriteBatch batch1;
+    private SpriteBatch batch2;
+    private Player player1;
+    private Player player2;
+    private GameControl gc1;
+    private GameControl gc2;
     float delta = 0f;
     float elapsedTime = 0f;
 
@@ -19,9 +25,12 @@ public class Main extends ApplicationAdapter {
     @Override
     public void create() {
 
-        batch = new SpriteBatch();
-        player = new Player(1);
-        gc = new GameControl(player);
+        batch1 = new SpriteBatch();
+        batch2 = new SpriteBatch();
+        player1 = new Player(1);
+        player2 = new Player(2);
+        gc1 = new GameControl(player1);
+        gc2 = new GameControl(player2);
 
 
 
@@ -33,18 +42,24 @@ public class Main extends ApplicationAdapter {
     public void render() {
         ScreenUtils.clear(0.15f, 0.15f, 0.2f, 1f);
         delta = Gdx.graphics.getDeltaTime();
-        gc.controlInput(delta);
-        player.update(delta);
+        gc1.controlInput(delta, W,S,A,D,E,R,T);
+        gc2.controlInput(delta, UP, DOWN, LEFT, RIGHT, J, K,L);
 
 
-        batch.begin();
-        player.render(batch);
-        batch.end();
+        player1.update(delta);
+        player2.update(delta);
+        batch1.begin();
+        batch2.begin();
+        player1.render(batch1,1);
+        player2.render(batch2,2);
+        batch1.end();
+        batch2.end();
     }
 
     @Override
     public void dispose() {
-        batch.dispose();
+        batch1.dispose();
+        batch2.dispose();
 
     }
 }
