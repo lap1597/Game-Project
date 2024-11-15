@@ -14,6 +14,7 @@ public class Movement {
     private Texture sheet2;
     private Texture sheet3;
 
+
     private int frameHeight = 64;
     private int frameWidth = 64;
     private TextureRegion[][] tmpFrames1;
@@ -21,13 +22,17 @@ public class Movement {
     private TextureRegion[][] tmpFrames3;
 
 
+
     public Movement(String sheetNomal, String sheetGun, String sheetPower) {
         sheet1 = new Texture(sheetNomal);
         sheet2 = new Texture(sheetGun);
         sheet3 = new Texture(sheetPower);
+
         tmpFrames1 = TextureRegion.split(sheet1, frameWidth, frameHeight);
         tmpFrames2 = TextureRegion.split(sheet2, frameWidth, frameHeight);
         tmpFrames3 = TextureRegion.split(sheet3, frameWidth, frameHeight);
+
+
     }
 
     public HashMap<String,TextureRegion []> activities(){
@@ -89,6 +94,24 @@ public class Movement {
         }
         allActivities.put("shotSuper", shotSuper);
 
+        //Short AIr up Long
+        TextureRegion[] shortUpLong = new TextureRegion[7];
+        for (int i = 0; i < 7; i++) {
+            shortUpLong[i] = tmpFrames3[2][i];
+        }
+        allActivities.put("shortUpLong", shortUpLong);
+        TextureRegion[] shortUpFast = new TextureRegion[6];
+        for (int i = 0; i < 6; i++) {
+            shortUpFast[i] = tmpFrames3[3][i];
+        }
+        allActivities.put("shortUpFast", shortUpFast);
+
+        TextureRegion[] shortDown = new TextureRegion[6];
+        for (int i = 0; i < 6; i++) {
+            shortDown[i] = tmpFrames3[5][i];
+        }
+        allActivities.put("shortDown", shortDown);
+
         //DIE - NORMAL
         TextureRegion[] die = new TextureRegion[7];
         for (int i = 0; i < 7; i++) {
@@ -96,53 +119,13 @@ public class Movement {
 
         }
 
+
         allActivities.put("die", die);
-        //FOR GUN
-        //Load gun
-        TextureRegion[] loadGun = new TextureRegion[4];
-        for (int i = 0; i < 4; i++) {
-            loadGun[i] = tmpFrames2[0][i];
-        }
-        allActivities.put("loadGun", loadGun);
-        //Stand gun
-        TextureRegion[] standGun = new TextureRegion[8];
-        for (int i = 0; i < 8; i++) {
-            standGun[i] = tmpFrames2[1][i];
-        }
-
-        allActivities.put("standGun", standGun);
-
-        //Stand shot
-        TextureRegion[] standShot = new TextureRegion[8];
-        for (int i = 0; i < 8; i++) {
-            standShot[i] = tmpFrames2[2][i];
-        }
-        allActivities.put("shoot", standShot);
-        // Walk gun
-        TextureRegion[] walkGun = new TextureRegion[8];
-        for (int i = 0; i < 8; i++) {
-            walkGun[i] = tmpFrames2[3][i];
-        }
-
-        allActivities.put("walkGun", walkGun);
-
-        //Walk shoot
-        TextureRegion[] walkShoot = new TextureRegion[8];
-        for (int i = 0; i < 8; i++) {
-            walkShoot[i] = tmpFrames2[4][i];
-        }
-
-        allActivities.put("walkShoot", walkShoot);
-        //DIe gun
-        TextureRegion[] dieGun = new TextureRegion[7];
-        for (int i = 0; i < 7; i++) {
-            dieGun[i] = tmpFrames2[8][i];
-        }
-
-        allActivities.put("dieGun", dieGun);
 
         return allActivities;
     }
+
+
 
     public void dispose() {
 

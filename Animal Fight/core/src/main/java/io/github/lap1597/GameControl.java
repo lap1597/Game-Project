@@ -1,68 +1,61 @@
 package io.github.lap1597;
+
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 
 public class GameControl extends ApplicationAdapter {
-    private Player p;
-    private float delta;
-    private int attack;
-    public GameControl(Player p) {
-        this.p = p;
+    private final Player player; // Player instance controlled by this GameControl
 
+    public GameControl(Player player) {
+        this.player = player;
     }
+
+    /**
+     * Processes input for controlling the player.
+     *
+     * @param delta   Time elapsed since the last frame, for smooth movement
+     * @param up      Key for moving up
+     * @param down    Key for moving down
+     * @param left    Key for moving left
+     * @param right   Key for moving right
+     * @param skill1  Key for activating Skill 1
+     * @param skill2  Key for activating Skill 2
+     * @param skill3  Key for activating Skill 3
+     */
     public void controlInput(float delta,
-                             int Up,
-                             int Down,
-                             int Left,
-                             int Right,
-                             int Skill1,
-                             int Skill2,
-                             int Skill3) {
+                             int up,
+                             int down,
+                             int left,
+                             int right,
+                             int skill1,
+                             int skill2,
+                             int skill3) {
 
-        if (Gdx.input.isKeyPressed(Up)) {
-            p.moveUp(delta);
-
+        // Movement controls
+        if (Gdx.input.isKeyPressed(up)) {
+            player.move(Direction.UP, delta);
+        }
+        if (Gdx.input.isKeyPressed(down)) {
+            player.move(Direction.DOWN, delta);
+        }
+        if (Gdx.input.isKeyPressed(left)) {
+            player.move(Direction.LEFT, delta);
+        }
+        if (Gdx.input.isKeyPressed(right)) {
+            player.move(Direction.RIGHT, delta);
         }
 
-        if (Gdx.input.isKeyPressed(Down)) {
-            p.moveDown(delta);
 
+
+        // Skill activation
+        if (Gdx.input.isKeyPressed(skill1)) {
+            player.skill1();
         }
-
-        if (Gdx.input.isKeyPressed(Left)) {
-            p.moveLeft(delta);
-
+        if (Gdx.input.isKeyPressed(skill2)) {
+            player.skill2();
         }
-
-        if (Gdx.input.isKeyPressed(Right)) {
-            p.moveRight(delta);
-
+        if (Gdx.input.isKeyPressed(skill3)) {
+            player.skill3();
         }
-
-        //SKILL
-        if (Gdx.input.isKeyPressed(Skill1)) {
-            p.activateSkill1();
-        } else {
-            p.deactivateSkill1();
-        }
-
-        // Activate skill 2
-        if (Gdx.input.isKeyPressed(Skill2)) {
-            p.activateSkill2();
-        } else {
-            p.deactivateSkill2();
-        }
-
-        // Activate skill 3
-        if (Gdx.input.isKeyPressed(Skill3)) {
-            p.activateSkill3();
-        } else {
-            p.deactivateSkill3();
-        }
-        p.attack();
     }
-
 }
-
-
