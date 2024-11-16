@@ -88,8 +88,8 @@ public class Movement {
         }
         allActivities.put("shotEnergyFast", shotEnergyFast);
         //SUPER ENERGY
-        TextureRegion[] shotSuper = new TextureRegion[13];
-        for (int i = 0; i < 13; i++) {
+        TextureRegion[] shotSuper = new TextureRegion[10];
+        for (int i = 0; i < 10; i++) {
             shotSuper[i] = tmpFrames3[0][i];
         }
         allActivities.put("shotSuper", shotSuper);
@@ -99,18 +99,18 @@ public class Movement {
         for (int i = 0; i < 7; i++) {
             shortUpLong[i] = tmpFrames3[2][i];
         }
-        allActivities.put("shortUpLong", shortUpLong);
+        allActivities.put("shotUpLong", shortUpLong);
         TextureRegion[] shortUpFast = new TextureRegion[6];
         for (int i = 0; i < 6; i++) {
             shortUpFast[i] = tmpFrames3[3][i];
         }
-        allActivities.put("shortUpFast", shortUpFast);
+        allActivities.put("shotUpFast", shortUpFast);
 
         TextureRegion[] shortDown = new TextureRegion[6];
         for (int i = 0; i < 6; i++) {
             shortDown[i] = tmpFrames3[5][i];
         }
-        allActivities.put("shortDown", shortDown);
+        allActivities.put("shotDown", shortDown);
 
         //DIE - NORMAL
         TextureRegion[] die = new TextureRegion[7];

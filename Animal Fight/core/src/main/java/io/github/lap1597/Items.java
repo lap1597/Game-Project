@@ -1,50 +1,30 @@
 package io.github.lap1597;
 
 public class Items {
-    private int bulletCount;
-    private int energyCount;
+    private int energy;
     private static final int MAX_ITEMS = 30;
 
-    public Items(int initialBullets, int initialEnergy) {
+    public Items(int initialEnergy) {
 
-        this.bulletCount = initialBullets;
-        this.energyCount = initialEnergy;
-    }
-
-    public int getBulletCount() {
-        return bulletCount;
+        this.energy = initialEnergy;
     }
 
     public int getEnergyCount() {
-        return energyCount;
+        return energy;
     }
 
-    public void useBullet() {
-        if (bulletCount > 0) {
-            bulletCount--;
-        }
-    }
+
 
     public void useEnergy() {
-        if (energyCount > 0) {
-            energyCount--;
+        if (energy > 0) {
+            energy--;
         }
     }
-    public void unload(){
-        bulletCount = 0;
-        energyCount = 0;
 
+
+    public void pickupEnergy() {
+        energy = Math.min(energy, MAX_ITEMS);  // Ensure it doesn't exceed max
     }
 
-    public void pickupBullet(int amount) {
-        bulletCount = Math.min(bulletCount + amount, MAX_ITEMS);  // Ensure it doesn't exceed max
-    }
 
-    public void pickupEnergy(int amount) {
-        energyCount = Math.min(energyCount + amount, MAX_ITEMS);  // Ensure it doesn't exceed max
-    }
-
-    public boolean hasNoItems() {
-        return bulletCount == 0 && energyCount == 0;
-    }
 }

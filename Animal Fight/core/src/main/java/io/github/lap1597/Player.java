@@ -13,7 +13,9 @@ import java.util.*;
 public class Player {
 
     private Movement movement;
-    private int health;
+
+    private int  health;
+    private int  speed;
     private static int typePlayer;
     private float elapsedTime = 0f;
     private static final float MOVE_SPEED = 100f;
@@ -28,6 +30,10 @@ public class Player {
     private boolean facingRight = false;
     private Bullet bullet;
     private ArrayList<Bullet> activeBullets;
+
+    private Items items;
+    private float timeSinceLastShot = 0f; // Time tracker for shooting
+
     public Player(int typePlayer, float initialX, float initialY) {
         if (typePlayer == 1) {
             // Get dog
@@ -36,18 +42,20 @@ public class Player {
             // Get Cat
             movement = new Movement(Constant.CATSHEET1, Constant.CATSHEET2, Constant.CATSHEET3);
         }
-
+        //Default
+        this.items = new Items(0);
+        this.health = 5;
+        this.speed = 5;
 
         this.x = initialX;
         this.y = initialY;
-        this.width = 30;
-        this.height = 30;
+        this.width = 15;
+        this.height = 15;
+
         regions = movement.activities();
         loadAnimations(regions);
         currentAnimation = animations.get("stand");
-//        bullet = new Bullet(initialX, initialY);
         activeBullets = new ArrayList<>();
-
     }
 
     private void loadAnimations(HashMap<String, TextureRegion[]> activities) {
@@ -60,20 +68,22 @@ public class Player {
 
     public void update(float delta) {
         elapsedTime += delta;
+        timeSinceLastShot += delta; // Update the cooldown timer
+
         if (currentAnimation != null && currentAnimation.isAnimationFinished(elapsedTime)) {
-            setAnimation("stand");
+            setAnimation("stand", 0);
         }
 
         // Update bullets and remove inactive ones
         ArrayList<Bullet> bulletToRemove = new ArrayList<>();
         for (Bullet bullet1 : activeBullets) {
+
             bullet1.update(delta);
             if (bullet1.remove) {
                 bulletToRemove.add(bullet1);
             }
         }
         activeBullets.removeAll(bulletToRemove);
-
     }
 
     public void render(SpriteBatch batch, int n) {
@@ -81,76 +91,117 @@ public class Player {
         batch.draw(frame, facingLeft ? x + frame.getRegionWidth() : x, y,
             facingLeft ? -frame.getRegionWidth() : frame.getRegionWidth(), frame.getRegionHeight());
 
-
         // Render active bullets
+
         for (Bullet bullet : activeBullets) {
+            if( bullet.getType() == BulletType.ENERGY || bullet.getType() == BulletType.EXPLOSIVE){
+                if(currentAnimation.isAnimationFinished(elapsedTime)){
+                    bullet.render(batch);
+                }
+            }
             bullet.render(batch);
         }
 
     }
 
-    public void move(Direction direction, float delta) {
-        float speed = MOVE_SPEED * delta; // Adjust speed as needed
-        x += direction.getXMultiplier() * speed;
-        y += direction.getYMultiplier() * speed;
-        facingLeft = (direction == Direction.LEFT);
-        facingUp = (direction == Direction.UP);
-        facingDown = (direction == Direction.DOWN);
-        facingRight = (direction == Direction.RIGHT);
+    // New method to handle movement based on angle (supports diagonal movement)
+    public void moveWithAngle(float directionX, float directionY, float delta) {
+        // Normalize the direction vector (to maintain consistent speed in all directions)
+        float speed = MOVE_SPEED * delta;
+        float length = (float) Math.sqrt(directionX * directionX + directionY * directionY);
+        directionX /= length;
+        directionY /= length;
 
-        // Set the appropriate animation
-        setAnimation("walk");
+        // Move the player based on the normalized direction
+        x += directionX * speed;
+        y += directionY * speed;
+
+        // Determine facing direction for animation (optional)
+        facingLeft = directionX < 0;
+        facingRight = directionX > 0;
+        facingUp = directionY > 0;
+        facingDown = directionY < 0;
+
+        // Set the appropriate animation for movement
+        setAnimation("walk", 0);
 
         // Ensure the player doesn't move out of bounds
         checkBorder();
     }
 
     public void skill1() {
-        // Handle diagonal shooting logic based on player's direction
-        if (facingUp && facingLeft) {
-            setAnimation("shortUp");
-            fireBullet(-1, 1, "up"); // Fire bullet diagonally up-left at 45-degree angle
-        } else if (facingUp && facingRight) {
-            setAnimation("shortUp");
-            fireBullet(1, 1, "up"); // Fire bullet diagonally up-right at 45-degree angle
-        } else if (facingDown && facingLeft) {
-            setAnimation("shortDownLeft");
-            fireBullet(-1, -1, "down"); // Fire bullet diagonally down-left at 45-degree angle
-        } else if (facingDown && facingRight) {
-            setAnimation("shortDown");
-            fireBullet(1, -1, "down"); // Fire bullet diagonally down-right at 45-degree angle
-        } else if (facingUp) {
-            setAnimation("shortUp");
-            fireBullet(0, 1, "up"); // Fire bullet upwards
-        } else if (facingDown) {
-            setAnimation("shortDown");
-            fireBullet(0, -1, "down"); // Fire bullet downwards
-        } else if (facingLeft) {
-            setAnimation("shortLeft");
-            fireBullet(-1, 0, "left"); // Fire bullet to the left
-        } else if (facingRight) {
-            setAnimation("shortRight");
-            fireBullet(1, 0, "right"); // Fire bullet to the right
+        if(items.getEnergyCount() >0) {
+
+
+            if (facingUp) {
+                setAnimation("shortUpFast", 0.5f);
+                fireBullet(0, 1, BulletType.NORMAL, 0.3f); // Fire bullet upwards
+            } else if (facingDown) {
+                setAnimation("shortDown", 0.5f);
+                fireBullet(0, -1, BulletType.NORMAL, 0.3f); // Fire bullet downwards
+            } else if (facingLeft) {
+                setAnimation("shotEnergyFast", 0.5f);
+                fireBullet(-1, 0, BulletType.NORMAL, 0.3f); // Fire bullet to the left
+            } else if (facingRight) {
+                setAnimation("shotEnergyFast", 0.5f);
+                fireBullet(1, 0, BulletType.NORMAL, 0.3f); // Fire bullet to the right
+            }
+        }else{
+            setAnimation("combo",0f);
         }
+
+
     }
 
 
-
     public void skill2() {
-        setAnimation("shotEnergyLong");
+        if(items.getEnergyCount() >0) {
+            if (facingUp) {
+                setAnimation("shotUpFast", 0.3f);
+
+                fireBullet(0, 1, BulletType.ENERGY, 0.5f); // Fire bullet upwards
+            } else if (facingDown) {
+                setAnimation("shotDown", 0.3f);
+                fireBullet(0, -1, BulletType.ENERGY, 0.5f); // Fire bullet downwards
+            } else if (facingLeft) {
+                setAnimation("shotEnergyLong", 0.3f);
+                fireBullet(-1, 0, BulletType.ENERGY, 0.5f); // Fire bullet to the left
+            } else if (facingRight) {
+                setAnimation("shotEnergyLong", 0.3f);
+                fireBullet(1, 0, BulletType.ENERGY, 0.5f); // Fire bullet to the right
+            }
+        }else{
+            setAnimation("kick",0f);
+        }
 
     }
 
     public void skill3() {
-        setAnimation("shotSuper");
+        if(items.getEnergyCount() >0) {
+            if (facingUp) {
+                setAnimation("shotSuper", 0.5f);
+
+                fireBullet(0, 1, BulletType.EXPLOSIVE, 1f); // Fire bullet upwards
+            } else if (facingDown) {
+                setAnimation("shotSuper", 0.5f);
+                fireBullet(0, -1, BulletType.EXPLOSIVE, 1f); // Fire bullet downwards
+            } else if (facingLeft) {
+                setAnimation("shotSuper", 0.5f);
+                fireBullet(-1, 0, BulletType.EXPLOSIVE, 1f); // Fire bullet to the left
+            } else if (facingRight) {
+                setAnimation("shotSuper", 0.5f);
+                fireBullet(1, 0, BulletType.EXPLOSIVE, 1f); // Fire bullet to the right
+            }
+        }else{
+            setAnimation("spin",0f);
+        }
     }
 
-
-    private void setAnimation(String action) {
+    private void setAnimation(String action, float del) {
         Animation<TextureRegion> animation = animations.get(action);
         if (animation != null && animation != currentAnimation) {
             currentAnimation = animation;
-            elapsedTime = 0;
+            elapsedTime = del;
         }
     }
 
@@ -168,20 +219,26 @@ public class Player {
             y = Constant.GAME_SCREEN_HEIGHT - height; // Top boundary
         }
     }
-    private void fireBullet(float directionX, float directionY, String bulletType) {
-        // Normalize diagonal direction for 45-degree flight
-        float magnitude = (float) Math.sqrt(directionX * directionX + directionY * directionY); // Get the magnitude
-        float normalizedX = directionX / magnitude; // Normalize X component
-        float normalizedY = directionY / magnitude; // Normalize Y component
 
-        // Adjust bullet speed (we'll keep the speed consistent for diagonal movement)
-        float bulletSpeed = 1f; // Adjust this value to control the bullet speed
+    private void fireBullet(float directionX, float directionY,  BulletType type,float cooldownTime) {
+        // Check if the cooldown period has passed
+        if (timeSinceLastShot >= cooldownTime) {
+            // Add a new bullet with the given direction
+            activeBullets.add(new Bullet(
+                x + width / 2, // Spawn bullet at player's center
+                y + height / 2,
+                directionX,
+                directionY,
+                facingLeft,
+                type
+            ));
 
-        // Create the bullet with the normalized direction and speed
-        activeBullets.add(new Bullet(x + width / 2, y + height / 2, normalizedX * bulletSpeed, normalizedY * bulletSpeed, facingLeft, bulletType));
-        System.out.println("Bullet Position: (" + x + ", " + y + ")");
+            // Reset the cooldown timer
+            timeSinceLastShot = 0f;
+
+            System.out.println("Bullet fired! Direction: (" + directionX + ", " + directionY + ")");
+        } else {
+            System.out.println("Cooldown active: Can't fire yet.");
+        }
     }
-
-
-
 }
