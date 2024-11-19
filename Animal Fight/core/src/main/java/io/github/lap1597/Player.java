@@ -2,6 +2,7 @@ package io.github.lap1597;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -30,7 +31,7 @@ public class Player {
     private boolean facingRight = false;
     private Bullet bullet;
     private ArrayList<Bullet> activeBullets;
-
+    private SoundManager shootingSound;
     private Items items;
     private float timeSinceLastShot = 0f; // Time tracker for shooting
 
@@ -43,7 +44,7 @@ public class Player {
             movement = new Movement(Constant.CATSHEET1, Constant.CATSHEET2, Constant.CATSHEET3);
         }
         //Default
-        this.items = new Items(0);
+        this.items = new Items(1);
         this.health = 5;
         this.speed = 5;
 
@@ -56,6 +57,7 @@ public class Player {
         loadAnimations(regions);
         currentAnimation = animations.get("stand");
         activeBullets = new ArrayList<>();
+        shootingSound.loadSound("shoot","soundFile/shotfiring.wav");
     }
 
     private void loadAnimations(HashMap<String, TextureRegion[]> activities) {
@@ -232,7 +234,7 @@ public class Player {
                 facingLeft,
                 type
             ));
-
+            SoundManager.playSound("shoot");
             // Reset the cooldown timer
             timeSinceLastShot = 0f;
 
