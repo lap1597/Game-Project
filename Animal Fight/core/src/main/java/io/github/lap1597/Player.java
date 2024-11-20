@@ -6,6 +6,8 @@ import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.maps.tiled.TiledMap;
+import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 
@@ -29,7 +31,14 @@ public class Player {
     private boolean facingUp = false;
     private boolean facingDown = false;
     private boolean facingRight = false;
-    private Bullet bullet;
+    private boolean movingUp = false;
+    private boolean movingDown = false;
+    private boolean movingLeft = false;
+    private boolean movingRight = false;
+
+    private boolean collision;
+    private static TiledMap map = MapManager.loadMap("MapResource/map1.tmx");
+
     private ArrayList<Bullet> activeBullets;
     private SoundManager shootingSound;
     private Items items;
@@ -75,6 +84,8 @@ public class Player {
         if (currentAnimation != null && currentAnimation.isAnimationFinished(elapsedTime)) {
             setAnimation("stand", 0);
         }
+        checkCollision();
+
 
         // Update bullets and remove inactive ones
         ArrayList<Bullet> bulletToRemove = new ArrayList<>();
@@ -128,6 +139,7 @@ public class Player {
         setAnimation("walk", 0);
 
         // Ensure the player doesn't move out of bounds
+
         checkBorder();
     }
 
@@ -221,6 +233,44 @@ public class Player {
             y = Constant.GAME_SCREEN_HEIGHT - height; // Top boundary
         }
     }
+    private void checkCollision() {
+        TiledMapTileLayer unPassLayer = (TiledMapTileLayer) map.getLayers().get("Unbreakable");
+
+        // Calculate player's next position based on current movement
+        int playerTileX = (int) (x / unPassLayer.getTileWidth());
+        int playerTileY = (int) (y / unPassLayer.getTileHeight());
+
+        // Define the next potential position based on movement direction
+        int nextTileX = playerTileX;
+        int nextTileY = playerTileY;
+
+        if (facingUp) {
+            nextTileY = (int) ((y + height) / unPassLayer.getTileHeight()); // Check the tile the player is moving into
+        } else if (facingDown) {
+            nextTileY = (int) ((y + height) / unPassLayer.getTileHeight());
+        } else if (facingLeft) {
+            nextTileX = (int) ((x + width) / unPassLayer.getTileWidth());
+        } else if (facingRight) {
+            nextTileX = (int) ((x + width) / unPassLayer.getTileWidth());
+        }
+
+        // Check for collision in the next tile
+        if (unPassLayer.getCell(nextTileX, nextTileY) != null) {
+            collision = true; // Set collision flag
+            if (facingUp) {
+                y = playerTileY * unPassLayer.getTileHeight(); // Stop player movement at tile boundary
+            } else if (facingDown) {
+                y = (playerTileY + 1) * unPassLayer.getTileHeight();
+            } else if (facingLeft) {
+                x = playerTileX * unPassLayer.getTileWidth();
+            } else if (facingRight) {
+                x = (playerTileX + 1) * unPassLayer.getTileWidth();
+            }
+        } else {
+            collision = false; // No collision, free to move
+        }
+    }
+
 
     private void fireBullet(float directionX, float directionY,  BulletType type,float cooldownTime) {
         // Check if the cooldown period has passed
