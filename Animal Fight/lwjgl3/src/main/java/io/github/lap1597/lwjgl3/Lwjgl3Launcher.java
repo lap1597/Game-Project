@@ -2,6 +2,7 @@ package io.github.lap1597.lwjgl3;
 
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
+import io.github.lap1597.AssetManager;
 import io.github.lap1597.Constant;
 import io.github.lap1597.Main;
 
@@ -13,6 +14,7 @@ public class Lwjgl3Launcher {
     }
 
     private static Lwjgl3Application createApplication() {
+
         return new Lwjgl3Application(new Main(), getDefaultConfiguration());
     }
 

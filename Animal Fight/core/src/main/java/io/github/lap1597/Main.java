@@ -41,15 +41,19 @@ public class Main extends ApplicationAdapter {
     @Override
     public void create() {
         batch1 = new SpriteBatch();
-     //   batch2 = new SpriteBatch();
+
         player1 = new Player(1,100,100);
         player2 = new Player(2,400,400);
         gc1 = new GameControl(player1);
         gc2 = new GameControl(player2);
-      //  System.out.println(Gdx.files.internal("MapResource/map1.tmx").exists());
+        AssetManager.loadAnimations(1); // Load dog animations for player1
+        AssetManager.loadAnimations(2);
+
+        //  System.out.println(Gdx.files.internal("MapResource/map1.tmx").exists());
         map = MapManager.loadMap("MapResource/map1.tmx");
         renderer = new OrthogonalTiledMapRenderer(map);
         camera = new OrthographicCamera();
+
 
 
     }

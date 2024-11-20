@@ -6,6 +6,7 @@ import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.maps.MapProperties;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.math.Vector2;
@@ -15,7 +16,7 @@ import java.util.*;
 
 public class Player {
 
-    private Movement movement;
+ //   private AssetManager assetManager;
 
     private int  health;
     private int  speed;
@@ -24,17 +25,16 @@ public class Player {
     private static final float MOVE_SPEED = 100f;
     private float x, y;
     private float width, height;
-    private HashMap<String, TextureRegion[]> regions;
-    private HashMap<String, Animation<TextureRegion>> animations = new HashMap<>();  // Stores animations by action
+
     private Animation<TextureRegion> currentAnimation;
+
     private boolean facingLeft = false;
     private boolean facingUp = false;
     private boolean facingDown = false;
     private boolean facingRight = false;
-    private boolean movingUp = false;
-    private boolean movingDown = false;
-    private boolean movingLeft = false;
-    private boolean movingRight = false;
+    private boolean collisionX = false;
+    private boolean collisionY = false;
+
 
     private boolean collision;
     private static TiledMap map = MapManager.loadMap("MapResource/map1.tmx");
@@ -44,36 +44,30 @@ public class Player {
     private Items items;
     private float timeSinceLastShot = 0f; // Time tracker for shooting
 
-    public Player(int typePlayer, float initialX, float initialY) {
-        if (typePlayer == 1) {
-            // Get dog
-            movement = new Movement(Constant.DOGSHEET1, Constant.DOGSHEET2, Constant.DOGSHEET3);
-        } else {
-            // Get Cat
-            movement = new Movement(Constant.CATSHEET1, Constant.CATSHEET2, Constant.CATSHEET3);
-        }
+    public Player(int type,float initialX, float initialY) {
+
         //Default
+        this.typePlayer = type;
+        AssetManager.loadAnimations(typePlayer);
         this.items = new Items(1);
         this.health = 5;
         this.speed = 5;
 
         this.x = initialX;
         this.y = initialY;
-        this.width = 15;
-        this.height = 15;
+        this.width = 10;
+        this.height = 10;
 
-        regions = movement.activities();
-        loadAnimations(regions);
-        currentAnimation = animations.get("stand");
+        currentAnimation = AssetManager.getAction("stand");
         activeBullets = new ArrayList<>();
-        shootingSound.loadSound("shoot","soundFile/shotfiring.wav");
+//        shootingSound.loadSound("shoot","soundFile/shotfiring.wav");
     }
+    private void setAnimation(String action, float del) {
 
-    private void loadAnimations(HashMap<String, TextureRegion[]> activities) {
-        for (String action : activities.keySet()) {
-            TextureRegion[] frames = activities.get(action);
-            float frameDuration = 0.1f;
-            animations.put(action, new Animation<>(frameDuration, frames));
+        Animation<TextureRegion> animation = AssetManager.getAction(action);
+        if (animation != null && animation != currentAnimation) {
+            currentAnimation = animation;
+            elapsedTime = del;
         }
     }
 
@@ -84,7 +78,6 @@ public class Player {
         if (currentAnimation != null && currentAnimation.isAnimationFinished(elapsedTime)) {
             setAnimation("stand", 0);
         }
-        checkCollision();
 
 
         // Update bullets and remove inactive ones
@@ -100,6 +93,7 @@ public class Player {
     }
 
     public void render(SpriteBatch batch, int n) {
+        System.out.println(currentAnimation);
         TextureRegion frame = currentAnimation.getKeyFrame(elapsedTime, true);  // Looping animation
         batch.draw(frame, facingLeft ? x + frame.getRegionWidth() : x, y,
             facingLeft ? -frame.getRegionWidth() : frame.getRegionWidth(), frame.getRegionHeight());
@@ -120,15 +114,30 @@ public class Player {
     // New method to handle movement based on angle (supports diagonal movement)
     public void moveWithAngle(float directionX, float directionY, float delta) {
         // Normalize the direction vector (to maintain consistent speed in all directions)
+
+
+
         float speed = MOVE_SPEED * delta;
         float length = (float) Math.sqrt(directionX * directionX + directionY * directionY);
         directionX /= length;
         directionY /= length;
 
         // Move the player based on the normalized direction
-        x += directionX * speed;
-        y += directionY * speed;
+        float newX =x + directionX * speed;
+        float newY =y + directionY * speed;
+        // Check collision for the new position
+        boolean collisionLeft = isCollision(newX, y); // Check left
+        boolean collisionRight = isCollision(newX + width, y); // Check right
+        boolean collisionUp = isCollision(x, newY + height); // Check top
+        boolean collisionDown = isCollision(x, newY); // Check bottom
 
+        // Update position only if no collision
+        if (!collisionLeft && !collisionRight) {
+            x = newX;
+        }
+        if (!collisionUp && !collisionDown) {
+            y = newY;
+        }
         // Determine facing direction for animation (optional)
         facingLeft = directionX < 0;
         facingRight = directionX > 0;
@@ -211,13 +220,7 @@ public class Player {
         }
     }
 
-    private void setAnimation(String action, float del) {
-        Animation<TextureRegion> animation = animations.get(action);
-        if (animation != null && animation != currentAnimation) {
-            currentAnimation = animation;
-            elapsedTime = del;
-        }
-    }
+
 
     private void checkBorder() {
         if (x < 0) {
@@ -233,43 +236,104 @@ public class Player {
             y = Constant.GAME_SCREEN_HEIGHT - height; // Top boundary
         }
     }
-    private void checkCollision() {
-        TiledMapTileLayer unPassLayer = (TiledMapTileLayer) map.getLayers().get("Unbreakable");
+//    private void checkCollision() {
+//        TiledMapTileLayer unPassLayer = (TiledMapTileLayer) map.getLayers().get("Unbreakable");
+//        boolean collisionX =false;
+//        boolean collisionY= false;
+//        float tiledWith =unPassLayer.getTileWidth();
+//        float tiledHeight = unPassLayer.getTileHeight();
+//        //top left
+//       collisionX = unPassLayer.getCell(
+//           (int)(x/tiledWith),
+//           (int)((y+ height)/tiledHeight))
+//           .getTile()
+//           .getProperties()
+//           .containsKey("Unbreakable");
+//        //middle left
+//        //
+//        if(!collisionX)
+//
+//
+//           collisionX |=unPassLayer.getCell(
+//               (int)(x/tiledWith),
+//               (int)((y+tiledHeight/2)/tiledHeight))
+//               .getTile()
+//               .getProperties()
+//               .containsKey("Unbreakable");
+//       //bottom left
+//        if(!collisionX)
+//            collisionX |= unPassLayer.getCell(
+//                (int)(x/tiledWith),
+//                (int)(y/tiledHeight))
+//            .getTile()
+//            .getProperties()
+//            .containsKey("Unbreakable");
+//
+//
+//        //top right
+//        collisionX = unPassLayer.getCell(
+//                (int)((x+ width)/tiledWith),
+//                (int)((y+ height)/tiledHeight))
+//            .getTile()
+//            .getProperties()
+//            .containsKey("Unbreakable");
+//        //middle right
+//        if(!collisionX){
+//            collisionX = unPassLayer.getCell(
+//                    (int)((x+ width)/tiledWith),
+//                    (int)((y+ width/2)/tiledHeight))
+//                .getTile()
+//                .getProperties()
+//                .containsKey("Unbreakable");
+//        }
+//        //bottom right
+//        if(!collisionX)
+//            collisionX |= unPassLayer.getCell(
+//                    (int)((x+width)/tiledWith),
+//                    (int)((y )/tiledHeight))
+//                .getTile()
+//                .getProperties()
+//                .containsKey("Unbreakable");
+//
+//
+//    }
+private boolean isCollision(float x, float y) {
+    // Get the specific layer (e.g., layer3)
+    TiledMapTileLayer collisionLayer = (TiledMapTileLayer) map.getLayers().get("Unbreakable");
 
-        // Calculate player's next position based on current movement
-        int playerTileX = (int) (x / unPassLayer.getTileWidth());
-        int playerTileY = (int) (y / unPassLayer.getTileHeight());
+    // Convert world coordinates to tile coordinates
+    int tileX = (int) (x / collisionLayer.getTileWidth());
+    int tileY = (int) (y / collisionLayer.getTileHeight());
 
-        // Define the next potential position based on movement direction
-        int nextTileX = playerTileX;
-        int nextTileY = playerTileY;
+    // Get the cell at the tile position
+    TiledMapTileLayer.Cell cell = collisionLayer.getCell(tileX, tileY);
 
-        if (facingUp) {
-            nextTileY = (int) ((y + height) / unPassLayer.getTileHeight()); // Check the tile the player is moving into
-        } else if (facingDown) {
-            nextTileY = (int) ((y + height) / unPassLayer.getTileHeight());
-        } else if (facingLeft) {
-            nextTileX = (int) ((x + width) / unPassLayer.getTileWidth());
-        } else if (facingRight) {
-            nextTileX = (int) ((x + width) / unPassLayer.getTileWidth());
-        }
-
-        // Check for collision in the next tile
-        if (unPassLayer.getCell(nextTileX, nextTileY) != null) {
-            collision = true; // Set collision flag
-            if (facingUp) {
-                y = playerTileY * unPassLayer.getTileHeight(); // Stop player movement at tile boundary
-            } else if (facingDown) {
-                y = (playerTileY + 1) * unPassLayer.getTileHeight();
-            } else if (facingLeft) {
-                x = playerTileX * unPassLayer.getTileWidth();
-            } else if (facingRight) {
-                x = (playerTileX + 1) * unPassLayer.getTileWidth();
-            }
-        } else {
-            collision = false; // No collision, free to move
+    if (cell != null) {
+        // Check if the tile has the 'collision' property
+        MapProperties properties = cell.getTile().getProperties();
+        if (properties.containsKey("Test") && properties.get("Test", Boolean.class)) {
+            return true; // Collision detected
         }
     }
+
+    return false; // No collision
+}
+
+//    private void checkCollision(float newX, float newY) {
+//        // Check horizontal collision
+//        if (isColliding(newX, y) || isColliding(newX + width, y) || isColliding(newX, y + height) || isColliding(newX + width, y + height)) {
+//            collisionX = true;
+//        } else {
+//            collisionX = false;
+//        }
+//
+//        // Check vertical collision
+//        if (isColliding(x, newY) || isColliding(x + width, newY) || isColliding(x, newY + height) || isColliding(x + width, newY + height)) {
+//            collisionY = true;
+//        } else {
+//            collisionY = false;
+//        }
+//    }
 
 
     private void fireBullet(float directionX, float directionY,  BulletType type,float cooldownTime) {
