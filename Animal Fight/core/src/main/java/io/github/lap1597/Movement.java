@@ -8,6 +8,7 @@ import com.badlogic.gdx.utils.ScreenUtils;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Movement {
     private Texture sheet1;
@@ -20,6 +21,8 @@ public class Movement {
     private TextureRegion[][] tmpFrames1;
     private TextureRegion[][] tmpFrames2;
     private TextureRegion[][] tmpFrames3;
+
+
 
 
 

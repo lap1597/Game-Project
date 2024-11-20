@@ -29,7 +29,7 @@ public class Player {
     private boolean facingUp = false;
     private boolean facingDown = false;
     private boolean facingRight = false;
-    private Bullet bullet;
+//    private Bullet bullet;
     private ArrayList<Bullet> activeBullets;
     private SoundManager shootingSound;
     private Items items;
