@@ -5,33 +5,27 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.utils.ScreenUtils;
 
-import java.util.ArrayList;
+
 import java.util.HashMap;
-import java.util.List;
+
 
 public class Movement {
     private Texture sheet1;
     private Texture sheet2;
-    private Texture sheet3;
-
 
     private int frameHeight = 64;
     private int frameWidth = 64;
     private TextureRegion[][] tmpFrames1;
     private TextureRegion[][] tmpFrames2;
-    private TextureRegion[][] tmpFrames3;
 
 
 
-    public Movement(String sheetNomal, String sheetGun, String sheetPower) {
+    public Movement(String sheetNomal, String sheetPower) {
         sheet1 = new Texture(sheetNomal);
-        sheet2 = new Texture(sheetGun);
-        sheet3 = new Texture(sheetPower);
+        sheet2 = new Texture(sheetPower);
 
         tmpFrames1 = TextureRegion.split(sheet1, frameWidth, frameHeight);
         tmpFrames2 = TextureRegion.split(sheet2, frameWidth, frameHeight);
-        tmpFrames3 = TextureRegion.split(sheet3, frameWidth, frameHeight);
-
 
     }
 
@@ -63,8 +57,8 @@ public class Movement {
         TextureRegion[] spin = new TextureRegion[10];
         for (int i = 0; i < 10; i++) {
             spin[i] = tmpFrames1[3][i];
-
         }
+
         allActivities.put("spin", spin);
         // KICK
         TextureRegion[] kick = new TextureRegion[12];
@@ -90,25 +84,25 @@ public class Movement {
         //SUPER ENERGY
         TextureRegion[] shotSuper = new TextureRegion[10];
         for (int i = 0; i < 10; i++) {
-            shotSuper[i] = tmpFrames3[0][i];
+            shotSuper[i] = tmpFrames2[0][i];
         }
         allActivities.put("shotSuper", shotSuper);
 
         //Short AIr up Long
         TextureRegion[] shortUpLong = new TextureRegion[7];
         for (int i = 0; i < 7; i++) {
-            shortUpLong[i] = tmpFrames3[2][i];
+            shortUpLong[i] = tmpFrames2[2][i];
         }
         allActivities.put("shotUpLong", shortUpLong);
         TextureRegion[] shortUpFast = new TextureRegion[6];
         for (int i = 0; i < 6; i++) {
-            shortUpFast[i] = tmpFrames3[3][i];
+            shortUpFast[i] = tmpFrames2[3][i];
         }
         allActivities.put("shotUpFast", shortUpFast);
 
         TextureRegion[] shortDown = new TextureRegion[6];
         for (int i = 0; i < 6; i++) {
-            shortDown[i] = tmpFrames3[5][i];
+            shortDown[i] = tmpFrames2[5][i];
         }
         allActivities.put("shotDown", shortDown);
 
@@ -121,7 +115,7 @@ public class Movement {
 
 
         allActivities.put("die", die);
-
+       // dispose(); // Free resources
         return allActivities;
     }
 
@@ -131,7 +125,6 @@ public class Movement {
 
         sheet1.dispose();
         sheet2.dispose();
-        sheet3.dispose();
 
     }
 }

@@ -24,20 +24,17 @@ public class Player {
     private static final float MOVE_SPEED = 100f;
     private float x, y;
     private float width, height;
-    private HashMap<String, TextureRegion[]> regions;
+    private HashMap<String, TextureRegion[]> regions ;
     private HashMap<String, Animation<TextureRegion>> animations = new HashMap<>();  // Stores animations by action
     private Animation<TextureRegion> currentAnimation;
     private boolean facingLeft = false;
     private boolean facingUp = false;
     private boolean facingDown = false;
     private boolean facingRight = false;
-    private boolean movingUp = false;
-    private boolean movingDown = false;
-    private boolean movingLeft = false;
-    private boolean movingRight = false;
-
+    private float directionX = 0;
+    private float directionY = 0;
+    private static TiledMap map;
     private boolean collision;
-    private static TiledMap map = MapManager.loadMap("MapResource/map1.tmx");
 
     private ArrayList<Bullet> activeBullets;
     private SoundManager shootingSound;
@@ -47,10 +44,10 @@ public class Player {
     public Player(int typePlayer, float initialX, float initialY) {
         if (typePlayer == 1) {
             // Get dog
-            movement = new Movement(Constant.DOGSHEET1, Constant.DOGSHEET2, Constant.DOGSHEET3);
+            movement = new Movement(Constant.DOGSHEET1, Constant.DOGSHEET2);
         } else {
             // Get Cat
-            movement = new Movement(Constant.CATSHEET1, Constant.CATSHEET2, Constant.CATSHEET3);
+            movement = new Movement(Constant.CATSHEET1, Constant.CATSHEET2);
         }
         //Default
         this.items = new Items(1);
@@ -67,6 +64,7 @@ public class Player {
         currentAnimation = animations.get("stand");
         activeBullets = new ArrayList<>();
         shootingSound.loadSound("shoot","soundFile/shotfiring.wav");
+
     }
 
     private void loadAnimations(HashMap<String, TextureRegion[]> activities) {
@@ -84,7 +82,6 @@ public class Player {
         if (currentAnimation != null && currentAnimation.isAnimationFinished(elapsedTime)) {
             setAnimation("stand", 0);
         }
-        checkCollision();
 
 
         // Update bullets and remove inactive ones
@@ -118,22 +115,48 @@ public class Player {
     }
 
     // New method to handle movement based on angle (supports diagonal movement)
-    public void moveWithAngle(float directionX, float directionY, float delta) {
+    public void handleMovement(boolean isUpPressed, boolean isDownPressed,
+                              boolean isLeftPressed, boolean isRightPressed, float delta) {
         // Normalize the direction vector (to maintain consistent speed in all directions)
         float speed = MOVE_SPEED * delta;
-        float length = (float) Math.sqrt(directionX * directionX + directionY * directionY);
-        directionX /= length;
-        directionY /= length;
-
+        directionX = 0;
+        directionY = 0;
+        facingLeft = facingRight = facingUp = facingDown = false;
         // Move the player based on the normalized direction
+
+
+        if (isUpPressed) {
+            directionY += 1; // Moving up
+
+        }
+        if (isDownPressed) {
+            directionY -= 1; // Moving down
+
+        }
+        if (isLeftPressed) {
+            directionX -= 1; // Moving left
+
+        }
+        if (isRightPressed) {
+            directionX += 1; // Moving right
+        }
+        if (directionX != 0 || directionY != 0) {
+            float length = (float) Math.sqrt(directionX * directionX + directionY * directionY);
+            directionX /= length;
+            directionY /= length;
+
+            // Move the player based on the calculated direction
+
+        }
         x += directionX * speed;
         y += directionY * speed;
 
+
         // Determine facing direction for animation (optional)
-        facingLeft = directionX < 0;
-        facingRight = directionX > 0;
-        facingUp = directionY > 0;
-        facingDown = directionY < 0;
+        if (directionX < 0) facingLeft = true;
+        if (directionX > 0) facingRight = true;
+        if (directionY > 0) facingUp = true;
+        if (directionY < 0) facingDown = true;
 
         // Set the appropriate animation for movement
         setAnimation("walk", 0);
@@ -142,6 +165,48 @@ public class Player {
 
         checkBorder();
     }
+    void checkCollision() {
+        // Check if player is out of bounds
+        if (x < 0 || x > Constant.GAME_SCREEN_WIDTH || y < 0 || y > Constant.GAME_SCREEN_HEIGHT) {
+            // Handle collision with boundary (e.g., reset position or stop movement)
+            System.out.println("Player collided with the boundary!");
+        }
+
+        // Get the "Unbreakable" layer from the map
+        TiledMapTileLayer mapTileLayer = (TiledMapTileLayer) map.getLayers().get("Unbreakable");
+        boolean collisionX = false;
+        boolean collisionY = false;
+
+        // Check for collisions in the X direction (horizontal)
+        int tileX = (int) (x / mapTileLayer.getTileWidth()); // Get the tile index in the X direction
+        int tileY = (int) (y / mapTileLayer.getTileHeight()); // Get the tile index in the Y direction
+
+        // Check if the tile at the player's position is solid (Unbreakable)
+        if (mapTileLayer.getCell(tileX, tileY) != null) {
+            collisionX = true;
+        }
+
+        // Check for collisions in the Y direction (vertical)
+        tileX = (int) ((x + width) / mapTileLayer.getTileWidth()); // Check the right side of the player
+        if (mapTileLayer.getCell(tileX, tileY) != null) {
+            collisionY = true;
+        }
+
+        // Handle the collision based on X and Y direction checks
+        if (collisionX) {
+            // Prevent player from moving further in X direction (or reset position)
+            directionX=0; // Undo the movement in X direction
+            System.out.println("Player collided with an unbreakable tile in X direction!");
+        }
+
+
+        if (collisionY) {
+            // Prevent player from moving further in Y direction (or reset position)
+            directionY=0; // Undo the movement in Y direction
+            System.out.println("Player collided with an unbreakable tile in Y direction!");
+        }
+    }
+
 
     public void skill1() {
         if(items.getEnergyCount() >0) {
@@ -233,43 +298,7 @@ public class Player {
             y = Constant.GAME_SCREEN_HEIGHT - height; // Top boundary
         }
     }
-    private void checkCollision() {
-        TiledMapTileLayer unPassLayer = (TiledMapTileLayer) map.getLayers().get("Unbreakable");
 
-        // Calculate player's next position based on current movement
-        int playerTileX = (int) (x / unPassLayer.getTileWidth());
-        int playerTileY = (int) (y / unPassLayer.getTileHeight());
-
-        // Define the next potential position based on movement direction
-        int nextTileX = playerTileX;
-        int nextTileY = playerTileY;
-
-        if (facingUp) {
-            nextTileY = (int) ((y + height) / unPassLayer.getTileHeight()); // Check the tile the player is moving into
-        } else if (facingDown) {
-            nextTileY = (int) ((y + height) / unPassLayer.getTileHeight());
-        } else if (facingLeft) {
-            nextTileX = (int) ((x + width) / unPassLayer.getTileWidth());
-        } else if (facingRight) {
-            nextTileX = (int) ((x + width) / unPassLayer.getTileWidth());
-        }
-
-        // Check for collision in the next tile
-        if (unPassLayer.getCell(nextTileX, nextTileY) != null) {
-            collision = true; // Set collision flag
-            if (facingUp) {
-                y = playerTileY * unPassLayer.getTileHeight(); // Stop player movement at tile boundary
-            } else if (facingDown) {
-                y = (playerTileY + 1) * unPassLayer.getTileHeight();
-            } else if (facingLeft) {
-                x = playerTileX * unPassLayer.getTileWidth();
-            } else if (facingRight) {
-                x = (playerTileX + 1) * unPassLayer.getTileWidth();
-            }
-        } else {
-            collision = false; // No collision, free to move
-        }
-    }
 
 
     private void fireBullet(float directionX, float directionY,  BulletType type,float cooldownTime) {

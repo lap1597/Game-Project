@@ -40,13 +40,13 @@ public class Bullet {
         this.type = type;
 
         // Calculate the angle for rotation based on direction
-        this.angle = (float) Math.toDegrees(Math.atan2(directionY, directionX));
+       this.angle = (float) Math.toDegrees(Math.atan2(directionY, directionX));
     }
 
     private static Animation<TextureRegion> initializeAnimation(int type) {
         try {
             if(type == 1) {
-                Texture texture = new Texture("shotEffect.png");
+                Texture texture = new Texture("shotAnimation/shotEffect.png");
                 TextureRegion[][] tmpFrames = TextureRegion.split(texture, 32, 32);
                 TextureRegion[] gunShot = new TextureRegion[4];
                 float frameDuration = 0.1f;
@@ -55,7 +55,7 @@ public class Bullet {
                 }
                 return new Animation<>(frameDuration, gunShot);
             }else if(type == 2) {
-                Texture texture = new Texture("shotEffect.png");
+                Texture texture = new Texture("shotAnimation/shotEffect.png");
                 TextureRegion[][] tmpFrames = TextureRegion.split(texture, 32, 32);
                 TextureRegion[] gunShot = new TextureRegion[4];
                 float frameDuration = 0.1f;
@@ -63,11 +63,14 @@ public class Bullet {
                     gunShot[i] = tmpFrames[3][i];
                 }
                 return new Animation<>(frameDuration, gunShot);
+
             }else if(type == 3) {
-                Texture texture = new Texture("shotEffect.png");
+
+                Texture texture = new Texture("shotAnimation/shotEffect.png");
                 TextureRegion[][] tmpFrames = TextureRegion.split(texture, 64, 64);
                 TextureRegion[] gunShot = new TextureRegion[4];
                 float frameDuration = 0.1f;
+
                 for (int i = 0; i < 4; i++) {
                     gunShot[i] = tmpFrames[0][i+4];
                 }

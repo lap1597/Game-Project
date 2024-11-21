@@ -46,7 +46,6 @@ public class Main extends ApplicationAdapter {
         player2 = new Player(2,400,400);
         gc1 = new GameControl(player1);
         gc2 = new GameControl(player2);
-      //  System.out.println(Gdx.files.internal("MapResource/map1.tmx").exists());
         map = MapManager.loadMap("MapResource/map1.tmx");
         renderer = new OrthogonalTiledMapRenderer(map);
         camera = new OrthographicCamera();
@@ -94,6 +93,8 @@ public class Main extends ApplicationAdapter {
         batch2.dispose();
         map.dispose();
         renderer.dispose();
+
+
 
     }
 
